@@ -1,37 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { getDocs, collection, query, getFirestore } from 'firebase/firestore';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions }  from 'react-native';
+import { getDocs, collection, query, getFirestore, orderBy } from 'firebase/firestore';
 import { fireStoreJob, auth } from '../firebase';
 
 const MainScreen = () => {
   const [profileNames, setProfileNames] = useState([]);
   const [timelineData, setTimelineData] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState('day');
+  const [filteredTimelineData, setFilteredTimelineData] = useState([]);
 
   useEffect(() => {
     const fetchTimelineData = async (profileName) => {
       const db = getFirestore();
-      const q = query(collection(fireStoreJob, auth.currentUser?.email, profileName, 'timeline'));
+      const q = query(collection(fireStoreJob, auth.currentUser?.email, profileName, 'timeline'), orderBy('time', 'desc'));
       const querySnapshot = await getDocs(q);
       const loadedTimelineData = querySnapshot.docs.map(doc => {
         const data = doc.data();
         const timestamp = new Date(data.time.seconds * 1000);
-        const currentDate = new Date();
-        if (
-          timestamp.getDate() === currentDate.getDate() &&
-          timestamp.getMonth() === currentDate.getMonth() &&
-          timestamp.getFullYear() === currentDate.getFullYear()
-        ) {
-          const hours = timestamp.getHours();
-          const minutes = timestamp.getMinutes();
-          const formattedTime = `${hours}시 ${minutes}분`;
-          const formattedTitle = `${data.title} (${formattedTime})`;
-          return { ...data, formattedTitle, profile: profileName, hours, minutes };
-        }
-        return null;
-      }).filter(Boolean); // null을 제거하여 유효한 데이터만 남깁니다.
-      return loadedTimelineData;
+        return { ...data, timestamp, profile: profileName };
+      });
+      setTimelineData(prevData => [...prevData, ...loadedTimelineData]);
     };
-  
+
     const fetchProfileData = async () => {
       try {
         const q = query(collection(fireStoreJob, auth.currentUser?.email));
@@ -39,81 +29,177 @@ const MainScreen = () => {
         const loadedProfiles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const loadedProfileNames = loadedProfiles.map(profile => profile.pname);
         setProfileNames(loadedProfileNames);
-  
-        const timelineDataArray = [];
+
         for (const profileName of loadedProfileNames) {
-          const loadedData = await fetchTimelineData(profileName);
-          timelineDataArray.push(...loadedData);
+          await fetchTimelineData(profileName);
         }
-        setTimelineData(timelineDataArray);
       } catch (error) {
         console.error('Error fetching profiles:', error);
       }
     };
-  
+
     fetchProfileData();
   }, []);
-  
 
-  const sortedTimelineData = timelineData.sort((a, b) => {
-    const timeA = new Date(a.time.seconds * 1000);
-    const timeB = new Date(b.time.seconds * 1000);
-    return timeA - timeB;
-  });
+  useEffect(() => {
+    const filterData = () => {
+      if (selectedPeriod === 'day') {
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+        setFilteredTimelineData(
+          timelineData.filter(data => data.timestamp >= oneDayAgo).sort((a, b) => a.timestamp - b.timestamp)
+        );
+      } else if (selectedPeriod === 'week') {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        setFilteredTimelineData(
+          timelineData.filter(data => data.timestamp >= oneWeekAgo).sort((a, b) => a.timestamp - b.timestamp)
+        );
+      } else if (selectedPeriod === 'month') {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        setFilteredTimelineData(
+          timelineData.filter(data => data.timestamp >= oneMonthAgo).sort((a, b) => a.timestamp - b.timestamp)
+        );
+      } else {
+        setFilteredTimelineData(timelineData.sort((a, b) => a.timestamp - b.timestamp));
+      }
+    };
+  
+    filterData();
+  }, [selectedPeriod, timelineData]);
+
+  const screenWidth = Dimensions.get('window').width;
+  const isSmallScreen = screenWidth <= 600;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {profileNames.map(profileName => (
-        <View key={profileName} style={styles.profileContainer}>
-          <Text style={styles.profileName}>{profileName}</Text>
-          {sortedTimelineData
-            .filter(data => data.profile === profileName)
-            .map((data, index) => (
-              <View style={styles.timelineItem} key={index}>
-                <View style={styles.dot} />
-                <View style={styles.timelineText}>
-                  <Text>{data.formattedTitle}</Text>
+      <View style={styles.filterContainer}>
+      <TouchableOpacity
+      onPress={() => setSelectedPeriod('all')}
+      style={[
+        styles.filterButton,
+        selectedPeriod === 'all' ? styles.selectedButton : null,
+        selectedPeriod !== 'all' ? styles.notSelectedButton : null
+      ]}
+    >
+      <Text style={[
+        styles.buttonText,
+        selectedPeriod === 'all' ? styles.selectedButtonText : null,
+        selectedPeriod !== 'all' ? styles.notSelectedButtonText : null
+      ]}>ALL</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      onPress={() => setSelectedPeriod('day')}
+      style={[
+        styles.filterButton,
+        selectedPeriod === 'day' ? styles.selectedButton : null,
+        selectedPeriod !== 'day' ? styles.notSelectedButton : null
+      ]}
+    >
+      <Text style={[
+        styles.buttonText,
+        selectedPeriod === 'day' ? styles.selectedButtonText : null,
+        selectedPeriod !== 'day' ? styles.notSelectedButtonText : null
+      ]}>DAY</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      onPress={() => setSelectedPeriod('week')}
+      style={[
+        styles.filterButton,
+        selectedPeriod === 'week' ? styles.selectedButton : null,
+        selectedPeriod !== 'week' ? styles.notSelectedButton : null
+      ]}
+    >
+      <Text style={[
+        styles.buttonText,
+        selectedPeriod === 'week' ? styles.selectedButtonText : null,
+        selectedPeriod !== 'week' ? styles.notSelectedButtonText : null
+      ]}>WEEK</Text>
+    </TouchableOpacity>
+<TouchableOpacity
+  onPress={() => setSelectedPeriod('month')}
+  style={[
+    styles.filterButton,
+    selectedPeriod === 'month' ? styles.selectedButton : null,
+    selectedPeriod !== 'month' ? styles.notSelectedButton : null
+  ]}
+>
+  <Text style={[
+    styles.buttonText,
+    selectedPeriod === 'month' ? styles.selectedButtonText : null,
+    selectedPeriod !== 'month' ? styles.notSelectedButtonText : null
+  ]}>MONTH</Text>
+</TouchableOpacity>
+      </View>
+      <View style={styles.contentContainer}>
+        {profileNames.map(profileName => (
+          <View key={profileName} style={[styles.profileContainer, isSmallScreen && styles.smallScreenProfileContainer]}>
+          <View style={styles.card}>
+            <Text style={styles.profileName}>{profileName}</Text>
+            {filteredTimelineData
+              .filter(data => data.profile === profileName)
+              .map((data, index) => (
+                <View style={styles.timelineItem} key={index}>
+                  <View style={styles.dot} />
+                  <View style={styles.timelineText}>
+                    <Text style={styles.cardText}>{`${data.title}(${selectedPeriod !== 'day' ? data.timestamp.toLocaleDateString() : ''}${data.timestamp.getHours() >= 12 ? '오후' : '오전'} ${(data.timestamp.getHours() % 12) || 12}:${data.timestamp.getMinutes().toString().padStart(2, '0')})`}</Text>
+                  </View>
                 </View>
-              </View>
-            ))}
-        </View>
-      ))}
+              ))}
+          </View>
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingTop: 50,
     paddingHorizontal: 10,
+    justifyContent: 'flex-start',
+    
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  filterButton: {
+    margin: 5,
+    padding: 10,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 5,
+  },
+  contentContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-evenly', // 가운데 정렬
   },
   profileContainer: {
     marginBottom: 20,
-    width: '30%',
+    width: '45%', // 최대 2개가 들어갈 수 있도록 조정
+    alignItems: 'center', // 가운데 정렬
+  },
+  smallScreenProfileContainer: {
+    width: '100%', // 화면이 작을 때 전체 너비로 설정
   },
   profileName: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: 'yellow',
     marginBottom: 5,
-  },
-  timelineContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  verticalLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     marginVertical: 5,
   },
   timelineItem: {
@@ -123,6 +209,30 @@ const styles = StyleSheet.create({
   },
   timelineText: {
     marginLeft: 5,
+  },
+  selectedButton: {
+    backgroundColor: 'black',
+  },
+  notSelectedButton: {
+    backgroundColor: 'black',
+  },
+  selectedButtonText: {
+    color: 'red',
+  },
+  notSelectedButtonText: {
+    color: 'yellow',
+  },
+  buttonText: {
+    color: 'black',
+  },
+  card: {
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  cardText: {
+    color: 'white',
   },
 });
 

@@ -1,14 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Button } from 'react-native';
-import { collection, addDoc, getDocs, query } from 'firebase/firestore';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Button, Alert } from 'react-native';
+import { collection, addDoc, getDocs, query, deleteDoc, doc } from 'firebase/firestore'; // Update imports
 import { fireStoreJob, auth } from '../firebase';
 import { useNavigation } from '@react-navigation/native'; // Add this line
+import RemoveProfileModal from '../RemoveProfileModal'; // 모달 컴포넌트 import
+
 
 const ProfileScreen = () => {
-  const navigation = useNavigation()
   const [profiles, setProfiles] = useState([]);
   const [isAddingProfile, setIsAddingProfile] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
+  const [selectedProfile, setSelectedProfile] = useState(null); // 선택된 프로필 상태
+  const [isRemoveModalVisible, setIsRemoveModalVisible] = useState(false); // 모달 표시 상태
+
+  const handleRemoveProfile = (profile) => {
+    setSelectedProfile(profile); // 선택된 프로필 설정
+    setIsRemoveModalVisible(true); // 모달 표시
+  };
+ 
+  const handleConfirmRemove = async () => {
+    if (selectedProfile) {
+      try {
+        await deleteDoc(doc(collection(fireStoreJob, auth.currentUser?.email), selectedProfile.id));
+        const updatedProfiles = profiles.filter(item => item.id !== selectedProfile.id);
+        setProfiles(updatedProfiles);
+      } catch (error) {
+        console.error('Error removing profile:', error);
+      } finally {
+        setIsRemoveModalVisible(false); // 모달 닫기
+        setSelectedProfile(null); // 선택된 프로필 초기화
+      }
+    }
+  };
+
+  const handleCancelRemove = () => {
+    setIsRemoveModalVisible(false); // 모달 닫기
+    setSelectedProfile(null); // 선택된 프로필 초기화
+  };
+
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -31,7 +60,6 @@ const ProfileScreen = () => {
 
   const handleSaveProfile = async () => {
     if (newProfileName.trim() !== '') {
-      // Check if the profile name already exists
       const isProfileExist = profiles.some(profile => profile.pname === newProfileName.trim());
       if (isProfileExist) {
         alert('이미 존재하는 프로필 이름입니다.');
@@ -53,14 +81,17 @@ const ProfileScreen = () => {
     }
   };
 
+  const navigation = useNavigation();  // navigation 객체 가져오기
+
   const handleProfileClick = (profile) => {
-    navigation.navigate('ProfileDetailScreen', { pname: profile.pname });
+    navigation.navigate('ProfileDetailScreen', { pname: profile.pname });  // 프로필 디테일 화면으로 이동
   };
+
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      navigation.navigate('Login'); // 이동할 화면으로 변경
+      navigation.navigate('Login');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -70,13 +101,15 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.profileList}>
         {profiles.map((profile, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.profileCard}
-            onPress={() => handleProfileClick(profile)}
-          >
-            <Text style={styles.profileName}>{profile.pname}</Text>
-          </TouchableOpacity>
+          <View key={index} style={styles.profileCard}>
+            <TouchableOpacity onPress={() => handleProfileClick(profile)}>
+              <Text style={styles.profileName}>{profile.pname}</Text>
+            </TouchableOpacity>
+            <Button
+              title="X"
+              onPress={() => handleRemoveProfile(profile)}
+            />
+          </View>
         ))}
       </View>
 
@@ -91,13 +124,17 @@ const ProfileScreen = () => {
           <Button title="Save Profile" onPress={handleSaveProfile} />
         </View>
       )}
-
+       <RemoveProfileModal
+        visible={isRemoveModalVisible}
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+      />
       <TouchableOpacity onPress={handleAddProfile} style={styles.addButton}>
         <Text style={styles.addButtonText}>프로필 추가 +</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-        <Text style={styles.logoutButtonText}>로그아웃</Text>
+        <Text style={styles.logoutButtonText}>LogOut</Text>
       </TouchableOpacity>
     </View>
   );
@@ -111,18 +148,22 @@ const styles = StyleSheet.create({
   },
   profileList: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: 'black',
     padding: 20,
     margin: 10,
     borderRadius: 10,
-    width: 100,
+    width: 150,
     alignItems: 'center',
   },
   profileName: {
     fontSize: 18,
+    marginBottom: 10,
+    color:'yellow'
   },
   addProfileContainer: {
     alignItems: 'center',
