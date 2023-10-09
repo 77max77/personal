@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Button, Alert } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  Button,
+  Alert,
+  Keyboard
+} from 'react-native';
 import { collection, addDoc, getDocs, query, deleteDoc, doc } from 'firebase/firestore'; // Update imports
 import { fireStoreJob, auth } from '../firebase';
 import { useNavigation } from '@react-navigation/native'; // Add this line
@@ -12,6 +22,7 @@ const ProfileScreen = () => {
   const [newProfileName, setNewProfileName] = useState('');
   const [selectedProfile, setSelectedProfile] = useState(null); // 선택된 프로필 상태
   const [isRemoveModalVisible, setIsRemoveModalVisible] = useState(false); // 모달 표시 상태
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   const handleRemoveProfile = (profile) => {
     setSelectedProfile(profile); // 선택된 프로필 설정
@@ -38,6 +49,11 @@ const ProfileScreen = () => {
     setSelectedProfile(null); // 선택된 프로필 초기화
   };
 
+  const handleCancelAddProfile = () => {
+    setNewProfileName(''); // 입력값 초기화
+    setIsAddingProfile(false); // 프로필 추가 화면 닫기
+  };
+  
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -53,6 +69,27 @@ const ProfileScreen = () => {
 
     fetchProfiles();
   }, []);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
 
   const handleAddProfile = () => {
     setIsAddingProfile(true);
@@ -88,42 +125,62 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <View style={styles.container}>
       <View style={styles.profileList}>
         {profiles.map((profile, index) => (
           <View key={index} style={styles.profileCard}>
             <TouchableOpacity onPress={() => handleProfileClick(profile)}>
               <Text style={styles.profileName}>{profile.pname}</Text>
             </TouchableOpacity>
-            <Button
-              title="X"
-              onPress={() => handleRemoveProfile(profile)}
-            />
+            <TouchableOpacity onPress={() => handleRemoveProfile(profile)} style={styles.removeButton}>
+              <Text style={styles.removeButtonText}>삭제</Text>
+            </TouchableOpacity>
           </View>
         ))}
-      </View>
-
-      {isAddingProfile && (
-        <View style={styles.addProfileContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="프로필 이름"
-            value={newProfileName}
-            onChangeText={setNewProfileName}
-          />
-          <Button title="Save Profile" onPress={handleSaveProfile} />
         </View>
-      )}
-       <RemoveProfileModal
-        visible={isRemoveModalVisible}
-        onConfirm={handleConfirmRemove}
-        onCancel={handleCancelRemove}
-      />
-      <TouchableOpacity onPress={handleAddProfile} style={styles.addButton}>
-        <Text style={styles.addButtonText}>프로필 추가 +</Text>
-      </TouchableOpacity>
 
-    </View>
+        {isAddingProfile && (
+          <View style={styles.addProfileContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="프로필 이름"
+              value={newProfileName}
+              onChangeText={setNewProfileName}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSaveProfile}
+              >
+                <Text style={styles.saveButtonText}>Save Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleCancelAddProfile}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {!isAddingProfile && !isKeyboardVisible && (
+          <TouchableOpacity onPress={handleAddProfile} style={styles.addButton}>
+            <Text style={styles.addButtonText}>프로필 추가 +</Text>
+          </TouchableOpacity>
+        )}
+
+        <RemoveProfileModal
+          visible={isRemoveModalVisible}
+          onConfirm={handleConfirmRemove}
+          onCancel={handleCancelRemove}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -132,6 +189,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F5FFFA', // 라이트 민트 그린
   },
   profileList: {
     flexDirection: 'row',
@@ -140,7 +198,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: 'black',
+    backgroundColor: '#556B2F', // 다크 올리브 그린
     padding: 20,
     margin: 10,
     borderRadius: 10,
@@ -148,9 +206,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileName: {
+    padding:20,
+    borderRadius: 5,
     fontSize: 18,
+    backgroundColor: 'lightgreen',
     marginBottom: 10,
-    color:'yellow'
+    color: 'black',
   },
   addProfileContainer: {
     alignItems: 'center',
@@ -161,12 +222,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 8,
+    backgroundColor: '#FFFFFF', // 화이트
   },
   addButton: {
     width: 200,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'blue',
+    backgroundColor: '#556B2F', // 다크 올리브 그린
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
@@ -175,9 +237,56 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 18,
-    color: 'white',
+    color: '#FFFFFF', // 화이트
   },
-
+  removeButton: {
+    backgroundColor: 'lightgreen', // 배경색
+    padding: 5,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: 'black', // 텍스트 색상
+  },
+  saveButton: {
+    backgroundColor: '#556B2F',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 10,
+    marginBottom:10
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    backgroundColor: '#FF6347',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 10,
+    marginLeft:5,
+    marginBottom: 10,
+  },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  
+  
+  
+  
 });
+
+
 
 export default ProfileScreen;

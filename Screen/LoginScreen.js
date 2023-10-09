@@ -59,13 +59,13 @@ const LoginScreen = () => {
                 onPress={handleLogin}
                 style={styles.button}
             >
-            <Text style={styles.buttonText}>Login</Text>
+            <Text style={styles.buttonText}>로그인</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={handleSignUp}
                 style={[styles.button, styles.buttonOutline]}
             >
-            <Text style={styles.buttonOutlineText}>Register</Text>
+            <Text style={styles.buttonOutlineText}>회원가입</Text>
             </TouchableOpacity>
         </View>
     </KeyboardAvoidingView>
@@ -75,48 +75,53 @@ const LoginScreen = () => {
 export default LoginScreen
 
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        justifyContent:'center',
-        alignItems:'center'
-    },
-    inputContainer: {
-        width: '80%'
-      },
-      input: {
-        backgroundColor: 'white',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginTop: 5,
-      },
-      buttonContainer: {
-        width: '60%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40,
-      },
-      button: {
-        backgroundColor: '#0782F9',
-        width: '100%',
-        padding: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-      },
-      buttonOutline: {
-        backgroundColor: 'white',
-        marginTop: 5,
-        borderColor: '#0782F9',
-        borderWidth: 2,
-      },
-      buttonText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
-      },
-      buttonOutlineText: {
-        color: '#0782F9',
-        fontWeight: '700',
-        fontSize: 16,
-      }
-})
+  container:{
+    flex:1,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor: '#F5FFFA', // 변경
+  },
+  inputContainer: {
+    width: '80%',
+    backgroundColor: '#F5FFFA', // 변경
+  },
+  input: {
+    backgroundColor: '#FFFFFF', // 변경
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 5,
+    borderColor: '#556B2F', // 변경
+    borderWidth: 2,
+    color: 'black', // 변경
+  },
+  buttonContainer: {
+    width: '60%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40,
+  },
+  button: {
+    backgroundColor: '#556B2F', // 변경
+    width: '100%',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonOutline: {
+    backgroundColor: '#FFFFFF', // 변경
+    marginTop: 5,
+    borderColor: '#556B2F', // 변경
+    borderWidth: 2,
+  },
+  buttonText: {
+    color: '#FFFFFF', // 변경
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  buttonOutlineText: {
+    color: '#556B2F', // 변경
+    fontWeight: '700',
+    fontSize: 16,
+  },
+});

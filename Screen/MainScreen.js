@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 10,
     justifyContent: 'flex-start',
-    
+    backgroundColor: '#F5FFFA', // 라이트 민트 그린
   },
   filterContainer: {
     flexDirection: 'row',
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   filterButton: {
     margin: 5,
     padding: 10,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#E0EEE0', // 연한 민트 그린
     borderRadius: 5,
   },
   contentContainer: {
@@ -195,12 +195,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly', // 가운데 정렬
   },
   profileContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
+    marginLeft: 5,
+    marginRight: 5,
     width: '45%', // 최대 2개가 들어갈 수 있도록 조정
     alignItems: 'center', // 가운데 정렬
+    backgroundColor: '#556B2F', // 올리브 그린
+    padding: 10,
+    borderRadius: 10,
   },
   smallScreenProfileContainer: {
-    width: '100%', // 화면이 작을 때 전체 너비로 설정
+    width: '45%', // 화면이 작을 때 전체 너비로 설정
   },
   profileName: {
     fontSize: 18,
@@ -212,7 +217,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'white',
+    backgroundColor: '#F5FFFA', // 라이트 민트 그린
     marginVertical: 5,
   },
   timelineItem: {
@@ -222,12 +227,13 @@ const styles = StyleSheet.create({
   },
   timelineText: {
     marginLeft: 5,
+    color: 'black',
   },
   selectedButton: {
-    backgroundColor: 'black',
+    backgroundColor: '#8FBC8F', // 다크 올리브 그린
   },
   notSelectedButton: {
-    backgroundColor: 'black',
+    backgroundColor: '#8FBC8F', // 다크 올리브 그린
   },
   selectedButtonText: {
     color: 'red',
@@ -239,7 +245,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   card: {
-    backgroundColor: 'black',
+    backgroundColor: '#8FBC8F', // 다크 올리브 그린
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,
@@ -257,5 +263,6 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+
 
 export default MainScreen;

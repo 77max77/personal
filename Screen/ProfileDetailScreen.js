@@ -134,19 +134,18 @@ const ProfileDetailScreen = ({ route, navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+    <KeyboardAvoidingView 
+    style={styles.container}
+    behavior={Platform.OS === "ios" ? "padding" : undefined}
+  >
       <View style={styles.container}>
         <Text>{`안녕하세요 "${pname}"님`}</Text>
-  
-     
   
         <View style={styles.messageButtons}>
           {messages.map((message, index) => (
             <View key={index} style={styles.messageButtonContainer}>
               <View style={styles.messageButton}>
-                <TouchableOpacity
-                  onPress={() => handleButtonClick(message.message)}
-                >
+                <TouchableOpacity onPress={() => handleButtonClick(message.message)}>
                   <Text style={styles.messageButtonText}>{message.message}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDeleteButton(message.message)}>
@@ -155,8 +154,9 @@ const ProfileDetailScreen = ({ route, navigation }) => {
               </View>
             </View>
           ))}
-        </View>      
-       <View style={styles.emergencyContacts}>
+        </View>
+  
+        <View style={styles.emergencyContacts}>
           <Text style={styles.sectionTitle}>비상 연락망</Text>
           {emergencyContacts.map((contact, index) => (
             <View key={index} style={styles.contactItem}>
@@ -169,25 +169,25 @@ const ProfileDetailScreen = ({ route, navigation }) => {
           ))}
         </View>
       </View>
-
-        <TouchableOpacity onPress={handleAddButton} style={styles.addButton}>
-          <Text style={styles.buttonText}>버튼 추가</Text>
-        </TouchableOpacity>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isAddingButton}
-          onRequestClose={() => setIsAddingButton(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TextInput
-                style={styles.modalTextInput}
-                placeholder="버튼 이름"
-                value={newMessageName}
-                onChangeText={setNewMessageName}
-              />
-             <View style={styles.modalButtonContainer}>
+  
+      <TouchableOpacity onPress={handleAddButton} style={styles.addButton}>
+        <Text style={styles.buttonText}>버튼 추가</Text>
+      </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isAddingButton}
+        onRequestClose={() => setIsAddingButton(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="버튼 이름"
+              value={newMessageName}
+              onChangeText={setNewMessageName}
+            />
+            <View style={styles.modalButtonContainer}>
               <TouchableOpacity onPress={handleRegisterMessage} style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>등록</Text>
               </TouchableOpacity>
@@ -196,74 +196,68 @@ const ProfileDetailScreen = ({ route, navigation }) => {
                 <Text style={styles.modalButtonText}>취소</Text>
               </TouchableOpacity>
             </View>
-            </View>
           </View>
-        </Modal>
+        </View>
+      </Modal>
   
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-          <Text style={styles.buttonText}>비상연락망 추가</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <Text style={styles.buttonText}>돌아가기</Text>
-        </TouchableOpacity>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TextInput
-                style={styles.modalTextInput}
-                placeholder="이름"
-                value={newContactName}
-                onChangeText={setNewContactName}
-              />
-              <TextInput
-                  style={styles.modalTextInput}
-                  placeholder="전화번호 (000-0000-0000)"
-                  value={newContactPhone}
-                  onChangeText={(text) => {
-                    // 정규식을 사용하여 입력값을 형식에 맞게 수정
-                    const formattedPhone = text.replace(/[^0-9]/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-                    setNewContactPhone(formattedPhone);
-                  }}
-                />
-              <View style={styles.modalButtonContainer}>
-              <TouchableOpacity onPress={handleAddContact} style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>추가</Text>
-              </TouchableOpacity>
-              <View style={styles.modalButtonSpacer} />
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>취소</Text>
-              </TouchableOpacity>
-              </View>
-            </View>
+      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+        <Text style={styles.buttonText}>비상연락망 추가</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={goBack} style={styles.backButton}>
+        <Text style={styles.buttonText}>돌아가기</Text>
+      </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="이름"
+              value={newContactName}
+              onChangeText={setNewContactName}
+            />
+            <TextInput
+              style={styles.modalTextInput}
+              placeholder="전화번호 (000-0000-0000)"
+              value={newContactPhone}
+              onChangeText={(text) => {
+                // 정규식을 사용하여 입력값을 형식에 맞게 수정
+                const formattedPhone = text.replace(/[^0-9]/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                setNewContactPhone(formattedPhone);
+              }}
+            />
+           <View style={styles.modalButtonContainer}>
+            <TouchableOpacity onPress={handleAddContact} style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>추가</Text>
+            </TouchableOpacity>
+            <View style={styles.modalButtonSpacer} />
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>취소</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-              
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
   
+  
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  messageButtonContainer: {
-    marginBottom: 20,
-  },
-  messageButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 20,
+    backgroundColor: '#F5FFFA', // 올리브 그린
   },
   messageButton: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#6B8E23', // 올리브 드라브
     padding: 20,
     margin: 10,
     borderRadius: 10,
@@ -271,50 +265,39 @@ const styles = StyleSheet.create({
   },
   messageButtonText: {
     fontSize: 24,
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor:'#808000',
+    color: 'white', // 화이트
   },
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+  modalButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'lightgrey',
-    padding: 10,
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    flex: 1,
-    marginRight: 10,
-    paddingHorizontal: 8,
-    backgroundColor: 'white',
+  modalButtonSpacer: {
+    width: 10,
   },
-  registerButton: {
-    backgroundColor: 'blue',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-  },
+  
   addButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#808000', // 올리브
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 5,
+  
+    width: '90%', // 화면 크기에 자동으로 반응하도록 추가
+    justifyContent: 'center', // 버튼 내부의 텍스트를 가운데 정렬
+    alignItems: 'center', // 버튼 내부의 텍스트를 가운데 정렬
   },
   backButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#556B2F', // 올리브 그린
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 5,
+    marginBottom: 10,
+    width: '90%', // 화면 크기에 자동으로 반응하도록 추가
+    justifyContent: 'center', // 버튼 내부의 텍스트를 가운데 정렬
+    alignItems: 'center', // 버튼 내부의 텍스트를 가운데 정렬
   },
   modalContainer: {
     flex: 1,
@@ -323,47 +306,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#F5FFFA', // 올리브 그린
     padding: 20,
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
   },
-  emergencyContacts: {
-    marginTop: 20,
-  },
-
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
   contactItem: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#808000', // 올리브
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
   },
-  buttonWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   deleteButton: {
     marginTop: 10,
-    color: 'red',
+    color: 'darkred',
     fontSize: 16,
   },
-  modalTextInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-    width: 200,
-  },
   modalButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#6B8E23', // 올리브 드라브
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -372,16 +333,14 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
   },
-  modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    marginTop: 20,
-  },
-  modalButtonSpacer: {
-    width: 10, // 필요에 따라 조절
+  buttonText: {
+    color: 'white',
   },
 });
+
+
+  
+
+  
 
 export default ProfileDetailScreen;
