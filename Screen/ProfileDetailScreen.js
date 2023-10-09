@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, Modal, StyleSheet } from 'react-native';
-import { addDoc, collection, getDocs, query, serverTimestamp, deleteDoc, where ,doc} from 'firebase/firestore';
+import { View, Text, TextInput, TouchableOpacity, Button, Modal, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { addDoc, collection, getDocs, query, serverTimestamp, deleteDoc, where, doc } from 'firebase/firestore';
 import { fireStoreJob, auth } from '../firebase';
 
 const ProfileDetailScreen = ({ route, navigation }) => {
@@ -12,6 +12,8 @@ const ProfileDetailScreen = ({ route, navigation }) => {
   const [newContactPhone, setNewContactPhone] = useState('');
   const [emergencyContacts, setEmergencyContacts] = useState([]);
   let lastButtonClickTime = null;
+  const [isAddingButton, setIsAddingButton] = useState(false);
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -90,12 +92,13 @@ const ProfileDetailScreen = ({ route, navigation }) => {
         setNewContactName('');
         setNewContactPhone('');
         setModalVisible(false);
-        setEmergencyContacts([...emergencyContacts, newContact]); // 추가된 연락처를 화면에 표시
+        setEmergencyContacts([...emergencyContacts, newContact]);
       } catch (error) {
         console.error('Error adding contact:', error);
       }
     }
   };
+
   const goBack = () => {
     navigation.goBack();
   };
@@ -125,83 +128,124 @@ const ProfileDetailScreen = ({ route, navigation }) => {
       console.error('Error deleting button:', error);
     }
   };
-  
-  return (
-    <View style={styles.container}>
-    <Text>{`안녕하세요 "${pname}"님`}</Text>
-    <View style={styles.messageButtons}>
-      {messages.map((message, index) => (
-        <View key={index} style={styles.messageButtonContainer}>
-          <View style={styles.messageButton}>
-            <TouchableOpacity
-              onPress={() => handleButtonClick(message.message)}
-            >
-              <Text style={styles.messageButtonText}>{message.message}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleDeleteButton(message.message)}>
-              <Text style={styles.deleteButton}>삭제</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </View>
-      <View style={styles.bottomBar}>
-        <TextInput
-          placeholder="추가할 버튼 이름을 입력하세요"
-          value={newMessageName}
-          onChangeText={setNewMessageName}
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={handleRegisterMessage} style={styles.registerButton}>
-          <Text style={styles.buttonText}>등록</Text>
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-        <Text style={styles.buttonText}>비상연락망 추가</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Text style={styles.buttonText}>돌아가기</Text>
-      </TouchableOpacity>
 
-      {/* Add Emergency Contact Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TextInput
-              style={styles.input}
-              placeholder="이름"
-              value={newContactName}
-              onChangeText={setNewContactName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="전화번호"
-              value={newContactPhone}
-              onChangeText={setNewContactPhone}
-            />
-            <Button title="저장" onPress={handleAddContact} />
-          </View>
+  const handleAddButton = () => {
+    setIsAddingButton(true);
+  };
+
+  return (
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      <View style={styles.container}>
+        <Text>{`안녕하세요 "${pname}"님`}</Text>
+  
+     
+  
+        <View style={styles.messageButtons}>
+          {messages.map((message, index) => (
+            <View key={index} style={styles.messageButtonContainer}>
+              <View style={styles.messageButton}>
+                <TouchableOpacity
+                  onPress={() => handleButtonClick(message.message)}
+                >
+                  <Text style={styles.messageButtonText}>{message.message}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDeleteButton(message.message)}>
+                  <Text style={styles.deleteButton}>삭제</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>      
+       <View style={styles.emergencyContacts}>
+          <Text style={styles.sectionTitle}>비상 연락망</Text>
+          {emergencyContacts.map((contact, index) => (
+            <View key={index} style={styles.contactItem}>
+              <Text>{`이름: ${contact.name}`}</Text>
+              <Text>{`전화번호: ${contact.phone}`}</Text>
+              <TouchableOpacity onPress={() => handleDeleteContact(contact.id)}>
+                <Text style={styles.deleteButton}>삭제</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
         </View>
-      </Modal>
-      <View style={styles.emergencyContacts}>
-        <Text style={styles.sectionTitle}>비상 연락망</Text>
-        {emergencyContacts.map((contact, index) => (
-          <View key={index} style={styles.contactItem}>
-            <Text>{`이름: ${contact.name}`}</Text>
-            <Text>{`전화번호: ${contact.phone}`}</Text>
-            <TouchableOpacity onPress={() => handleDeleteContact(contact.id)}>
-              <Text style={styles.deleteButton}>삭제</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
       </View>
-    </View>
+
+        <TouchableOpacity onPress={handleAddButton} style={styles.addButton}>
+          <Text style={styles.buttonText}>버튼 추가</Text>
+        </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isAddingButton}
+          onRequestClose={() => setIsAddingButton(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TextInput
+                style={styles.modalTextInput}
+                placeholder="버튼 이름"
+                value={newMessageName}
+                onChangeText={setNewMessageName}
+              />
+             <View style={styles.modalButtonContainer}>
+              <TouchableOpacity onPress={handleRegisterMessage} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>등록</Text>
+              </TouchableOpacity>
+              <View style={styles.modalButtonSpacer} />
+              <TouchableOpacity onPress={() => setIsAddingButton(false)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>취소</Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+          </View>
+        </Modal>
+  
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+          <Text style={styles.buttonText}>비상연락망 추가</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+          <Text style={styles.buttonText}>돌아가기</Text>
+        </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TextInput
+                style={styles.modalTextInput}
+                placeholder="이름"
+                value={newContactName}
+                onChangeText={setNewContactName}
+              />
+              <TextInput
+                  style={styles.modalTextInput}
+                  placeholder="전화번호 (000-0000-0000)"
+                  value={newContactPhone}
+                  onChangeText={(text) => {
+                    // 정규식을 사용하여 입력값을 형식에 맞게 수정
+                    const formattedPhone = text.replace(/[^0-9]/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                    setNewContactPhone(formattedPhone);
+                  }}
+                />
+              <View style={styles.modalButtonContainer}>
+              <TouchableOpacity onPress={handleAddContact} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>추가</Text>
+              </TouchableOpacity>
+              <View style={styles.modalButtonSpacer} />
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>취소</Text>
+              </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+              
+    </KeyboardAvoidingView>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -309,6 +353,34 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: 'red',
     fontSize: 16,
+  },
+  modalTextInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingLeft: 10,
+    width: 200,
+  },
+  modalButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 20,
+  },
+  modalButtonSpacer: {
+    width: 10, // 필요에 따라 조절
   },
 });
 

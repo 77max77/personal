@@ -87,16 +87,6 @@ const ProfileScreen = () => {
     navigation.navigate('ProfileDetailScreen', { pname: profile.pname });  // 프로필 디테일 화면으로 이동
   };
 
-
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigation.navigate('Login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.profileList}>
@@ -133,9 +123,6 @@ const ProfileScreen = () => {
         <Text style={styles.addButtonText}>프로필 추가 +</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-        <Text style={styles.logoutButtonText}>LogOut</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -190,15 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  logoutButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    color: 'red',
-  },
+
 });
 
 export default ProfileScreen;

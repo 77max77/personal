@@ -36,8 +36,8 @@ const LoginScreen = () => {
       };
   return (
     <KeyboardAvoidingView 
-    style={styles.container}
-    behavior="padding"
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
         <View style={styles.inputContainer}>
             <TextInput

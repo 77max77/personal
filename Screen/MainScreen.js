@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions }  from 'react-native';
 import { getDocs, collection, query, getFirestore, orderBy } from 'firebase/firestore';
 import { fireStoreJob, auth } from '../firebase';
+import { useNavigation } from '@react-navigation/native'; // Add this line
 
 const MainScreen = () => {
   const [profileNames, setProfileNames] = useState([]);
@@ -71,9 +72,21 @@ const MainScreen = () => {
 
   const screenWidth = Dimensions.get('window').width;
   const isSmallScreen = screenWidth <= 600;
+  const navigation = useNavigation(); 
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Text style={styles.logoutButtonText}>로그아웃</Text>
+      </TouchableOpacity>
       <View style={styles.filterContainer}>
       <TouchableOpacity
       onPress={() => setSelectedPeriod('all')}
@@ -233,6 +246,15 @@ const styles = StyleSheet.create({
   },
   cardText: {
     color: 'white',
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    color: 'red',
   },
 });
 
