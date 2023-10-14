@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgreen',
     marginBottom: 10,
     color: 'black',
+    fontWeight: 'bold',
   },
   addProfileContainer: {
     alignItems: 'center',
@@ -237,6 +238,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 18,
+    fontWeight: 'bold',
     color: '#FFFFFF', // 화이트
   },
   removeButton: {
@@ -248,6 +250,7 @@ const styles = StyleSheet.create({
   },
   removeButtonText: {
     color: 'black', // 텍스트 색상
+    fontWeight: 'bold',
   },
   saveButton: {
     backgroundColor: '#556B2F',

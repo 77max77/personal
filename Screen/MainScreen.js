@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'yellow',
+    color: 'black',
     marginBottom: 5,
   },
   dot: {
