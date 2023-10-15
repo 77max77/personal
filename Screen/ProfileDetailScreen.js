@@ -117,6 +117,8 @@ const ProfileDetailScreen = ({ route, navigation }) => {
     }
   };
   
+
+  
   
 
   
