@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, Modal, StyleSheet, KeyboardAvoidingView } from 'react-native';
-import { addDoc, collection, getDocs, query, serverTimestamp, deleteDoc, where, doc } from 'firebase/firestore';
+import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, KeyboardAvoidingView ,ScrollView } from 'react-native';
+import { addDoc, collection, getDocs, query, serverTimestamp, deleteDoc, where,} from 'firebase/firestore';
 import { fireStoreJob, auth } from '../firebase';
 
 const ProfileDetailScreen = ({ route, navigation }) => {
@@ -91,10 +91,9 @@ const ProfileDetailScreen = ({ route, navigation }) => {
         await addDoc(profileCollectionRef, newContact);
         setNewContactName('');
         setNewContactPhone('');
-        setModalVisible(false);
         setEmergencyContacts([...emergencyContacts, newContact]);
       } catch (error) {
-        console.error('Error adding contact:', error);
+        console.error('Error registering contact:', error);
       }
     }
   };
@@ -103,16 +102,26 @@ const ProfileDetailScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const handleDeleteContact = async (contactId) => {
+  const handleDeleteContact = async (phone) => {
     try {
-      const contactRef = doc(fireStoreJob, auth.currentUser?.email, pname, 'phoneNumber', contactId);
-      await deleteDoc(contactRef);
-      const updatedContacts = emergencyContacts.filter(contact => contact.id !== contactId);
+      const profileCollectionRef = collection(fireStoreJob, auth.currentUser?.email, pname, 'phoneNumber');
+      const q = query(profileCollectionRef, where('phone', '==', phone));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+      const updatedContacts = emergencyContacts.filter(contact => contact.phone !== phone);
       setEmergencyContacts(updatedContacts);
     } catch (error) {
       console.error('Error deleting contact:', error);
     }
   };
+  
+  
+
+  
+
+  
 
   const handleDeleteButton = async (message) => {
     try {
@@ -138,12 +147,13 @@ const ProfileDetailScreen = ({ route, navigation }) => {
     style={styles.container}
     behavior={Platform.OS === "ios" ? "padding" : undefined}
   >
-      <View style={styles.container}>
-        <Text>{`안녕하세요 "${pname}"님`}</Text>
-  
-        <View style={styles.messageButtons}>
+    
+    <View style={styles.container}>
+      <Text>{`안녕하세요 "${pname}"님`}</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContainer2}>
+        <View style={styles.container} > 
           {messages.map((message, index) => (
-            <View key={index} style={styles.messageButtonContainer}>
+            <View key={index} style={styles.modalButtonContainer}>
               <View style={styles.messageButton}>
                 <TouchableOpacity onPress={() => handleButtonClick(message.message)}>
                   <Text style={styles.messageButtonText}>{message.message}</Text>
@@ -155,24 +165,33 @@ const ProfileDetailScreen = ({ route, navigation }) => {
             </View>
           ))}
         </View>
-  
-        <View style={styles.emergencyContacts}>
+        </ScrollView> 
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <View>
           <Text style={styles.sectionTitle}>비상 연락망</Text>
           {emergencyContacts.map((contact, index) => (
             <View key={index} style={styles.contactItem}>
               <Text>{`이름: ${contact.name}`}</Text>
               <Text>{`전화번호: ${contact.phone}`}</Text>
-              <TouchableOpacity onPress={() => handleDeleteContact(contact.id)}>
+              <TouchableOpacity onPress={() => handleDeleteContact(contact.phone)}>
                 <Text style={styles.deleteButton}>삭제</Text>
               </TouchableOpacity>
             </View>
           ))}
         </View>
-      </View>
+        </ScrollView>     
+        <TouchableOpacity onPress={handleAddButton} style={styles.addButton}>
+          <Text style={styles.buttonText}>버튼 추가</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+          <Text style={styles.buttonText}>비상연락망 추가</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+          <Text style={styles.buttonText}>돌아가기</Text>
+        </TouchableOpacity>
+      </View> 
   
-      <TouchableOpacity onPress={handleAddButton} style={styles.addButton}>
-        <Text style={styles.buttonText}>버튼 추가</Text>
-      </TouchableOpacity>
+    
       <Modal
         animationType="slide"
         transparent={true}
@@ -200,12 +219,7 @@ const ProfileDetailScreen = ({ route, navigation }) => {
         </View>
       </Modal>
   
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-        <Text style={styles.buttonText}>비상연락망 추가</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Text style={styles.buttonText}>돌아가기</Text>
-      </TouchableOpacity>
+   
       <Modal
         animationType="slide"
         transparent={true}
@@ -242,6 +256,7 @@ const ProfileDetailScreen = ({ route, navigation }) => {
           </View>
         </View>
       </Modal>
+    
     </KeyboardAvoidingView>
   );
   
@@ -251,24 +266,28 @@ const ProfileDetailScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex:1,
+    width:'100%',
+    marginTop:20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FFFA', // 올리브 그린
+    backgroundColor: '#F5FFFA',
   },
   messageButton: {
-    backgroundColor: '#6B8E23', // 올리브 드라브
-    padding: 20,
-    margin: 10,
+    backgroundColor: '#6B8E23',
+    padding: 10,
+    margin:5,
+    width:"70%",
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: 'center'
+
   },
   messageButtonText: {
     fontSize: 24,
     padding: 20,
     borderRadius: 10,
     backgroundColor:'#808000',
-    color: 'white', // 화이트
+    color: 'white',
   },
   modalButtonContainer: {
     flexDirection: 'row',
@@ -278,7 +297,7 @@ const styles = StyleSheet.create({
   },
   
   addButton: {
-    backgroundColor: '#808000', // 올리브
+    backgroundColor: '#808000', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -289,7 +308,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 버튼 내부의 텍스트를 가운데 정렬
   },
   backButton: {
-    backgroundColor: '#556B2F', // 올리브 그린
+    backgroundColor: '#556B2F',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -306,25 +325,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#F5FFFA', // 올리브 그린
+    backgroundColor: '#F5FFFA', 
     padding: 20,
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
   },
   contactItem: {
-    backgroundColor: '#808000', // 올리브
+    backgroundColor: '#808000', 
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
   },
   deleteButton: {
     marginTop: 10,
-    color: 'darkred',
+    color: 'black',
     fontSize: 16,
   },
   modalButton: {
-    backgroundColor: '#6B8E23', // 올리브 드라브
+    backgroundColor: '#6B8E23',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -335,6 +354,32 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
+  },
+  scrollViewContainer: {
+   
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollViewContainer2: {
+
+    marginTop:10,
+    marginBottom:200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalTextInput: {
+    height: 40,
+    width: '100%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
 

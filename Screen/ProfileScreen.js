@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
-  Button,
-  Alert,
   Keyboard
 } from 'react-native';
 import { collection, addDoc, getDocs, query, deleteDoc, doc } from 'firebase/firestore'; // Update imports
@@ -156,13 +154,13 @@ const ProfileScreen = () => {
                 style={styles.saveButton}
                 onPress={handleSaveProfile}
               >
-                <Text style={styles.saveButtonText}>Save Profile</Text>
+                <Text style={styles.saveButtonText}>프로필 추가</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={handleCancelAddProfile}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>취소</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -189,7 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FFFA', // 라이트 민트 그린
+    backgroundColor: '#F5FFFA', 
   },
   profileList: {
     flexDirection: 'row',
@@ -198,7 +196,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: '#556B2F', // 다크 올리브 그린
+    backgroundColor: '#86B404', 
     padding: 20,
     margin: 10,
     borderRadius: 10,
@@ -209,9 +207,10 @@ const styles = StyleSheet.create({
     padding:20,
     borderRadius: 5,
     fontSize: 18,
-    backgroundColor: 'lightgreen',
+    backgroundColor: '#8FBC8F',
     marginBottom: 10,
-    color: 'black',
+    color: 'white',
+    fontWeight: 'bold',
   },
   addProfileContainer: {
     alignItems: 'center',
@@ -222,13 +221,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 8,
-    backgroundColor: '#FFFFFF', // 화이트
+    backgroundColor: '#FFFFFF',
   },
   addButton: {
     width: 200,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#556B2F', // 다크 올리브 그린
+    backgroundColor: '#86B404',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
@@ -237,17 +236,19 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 18,
-    color: '#FFFFFF', // 화이트
+    fontWeight: 'bold',
+    color: '#FFFFFF', 
   },
   removeButton: {
-    backgroundColor: 'lightgreen', // 배경색
+    backgroundColor: '#8FBC8F',
     padding: 5,
     borderRadius: 5,
     marginTop: 10,
     alignItems: 'center',
   },
   removeButtonText: {
-    color: 'black', // 텍스트 색상
+    color: 'black', 
+    fontWeight: 'bold',
   },
   saveButton: {
     backgroundColor: '#556B2F',

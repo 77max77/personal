@@ -79,21 +79,21 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor: '#F5FFFA', // 변경
+    backgroundColor: '#F5FFFA', 
   },
   inputContainer: {
     width: '80%',
-    backgroundColor: '#F5FFFA', // 변경
+    backgroundColor: '#F5FFFA', 
   },
   input: {
-    backgroundColor: '#FFFFFF', // 변경
+    backgroundColor: '#FFFFFF', 
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 10,
     marginTop: 5,
-    borderColor: '#556B2F', // 변경
+    borderColor: '#556B2F', 
     borderWidth: 2,
-    color: 'black', // 변경
+    color: 'black', 
   },
   buttonContainer: {
     width: '60%',
@@ -102,25 +102,25 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
-    backgroundColor: '#556B2F', // 변경
+    backgroundColor: '#556B2F', 
     width: '100%',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
   buttonOutline: {
-    backgroundColor: '#FFFFFF', // 변경
+    backgroundColor: '#FFFFFF', 
     marginTop: 5,
-    borderColor: '#556B2F', // 변경
+    borderColor: '#556B2F', 
     borderWidth: 2,
   },
   buttonText: {
-    color: '#FFFFFF', // 변경
+    color: '#FFFFFF', 
     fontWeight: '700',
     fontSize: 16,
   },
   buttonOutlineText: {
-    color: '#556B2F', // 변경
+    color: '#556B2F', 
     fontWeight: '700',
     fontSize: 16,
   },
