@@ -116,15 +116,6 @@ const ProfileDetailScreen = ({ route, navigation }) => {
       console.error('Error deleting contact:', error);
     }
   };
-  
-
-  
-  
-
-  
-
-  
-
   const handleDeleteButton = async (message) => {
     try {
       const profileCollectionRef = collection(fireStoreJob, auth.currentUser?.email, pname, 'buttons');
