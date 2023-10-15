@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
-  Keyboard
+  Keyboard,
+  ScrollView
 } from 'react-native';
 import { collection, addDoc, getDocs, query, deleteDoc, doc } from 'firebase/firestore'; // Update imports
 import { fireStoreJob, auth } from '../firebase';
@@ -127,20 +128,20 @@ const ProfileScreen = () => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.container}>
-      <View style={styles.profileList}>
-        {profiles.map((profile, index) => (
-          <View key={index} style={styles.profileCard}>
-            <TouchableOpacity onPress={() => handleProfileClick(profile)}>
-              <Text style={styles.profileName}>{profile.pname}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleRemoveProfile(profile)} style={styles.removeButton}>
-              <Text style={styles.removeButtonText}>삭제</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-        </View>
-
+         <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.profileList}>
+          {profiles.map((profile, index) => (
+            <View key={index} style={styles.profileCard}>
+              <TouchableOpacity onPress={() => handleProfileClick(profile)}>
+                <Text style={styles.profileName}>{profile.pname}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleRemoveProfile(profile)} style={styles.removeButton}>
+                <Text style={styles.removeButtonText}>삭제</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+     
         {isAddingProfile && (
           <View style={styles.addProfileContainer}>
             <TextInput
@@ -177,7 +178,7 @@ const ProfileScreen = () => {
           onConfirm={handleConfirmRemove}
           onCancel={handleCancelRemove}
         />
-      </View>
+      </View> 
     </KeyboardAvoidingView>
   );
 };
@@ -185,15 +186,16 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FFFA', 
   },
+  
   profileList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginBottom: 20,
   },
   profileCard: {
     backgroundColor: '#86B404', 
@@ -213,6 +215,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addProfileContainer: {
+    marginTop:10,
     alignItems: 'center',
   },
   input: {
